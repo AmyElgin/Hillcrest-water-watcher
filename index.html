@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hillcrest Water Watch</title>
+  <meta name="description" content="A neighbourhood demo for logging a household water outage in Hillcrest, seeing reports saved on this device, and finding eThekwini’s official fault lines.">
+  <meta name="theme-color" content="#0d2f2a">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Cpath d=%27M50 6C50 6 18 46 18 66a32 32 0 0 0 64 0C82 46 50 6 50 6Z%27 fill=%27%231f8a8f%27/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="mast">
+    <div class="mast-inner">
+      <div class="mast-copy">
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Hillcrest · eThekwini · Durban</p>
+        <h1>Hillcrest <em>Water</em> Watch</h1>
+        <p class="lede">Log what your household is seeing, compare notes saved on this device, and use the city’s own lines to report it.</p>
+        <p class="banner" role="note"><span class="banner-icon" aria-hidden="true">i</span><span>This is a neighbourhood demo. Saving a log here does <strong>not</strong> tell eThekwini Municipality. It is not a live outage map.</span></p>
+      </div>
+      <div class="mast-art" aria-hidden="true">
+        <svg viewBox="0 0 200 200" class="drop">
+          <defs>
+            <linearGradient id="dropFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#8fe0d6"/>
+              <stop offset="1" stop-color="#1f8a8f"/>
+            </linearGradient>
+          </defs>
+          <circle cx="100" cy="108" r="86" fill="rgba(255,255,255,0.06)"/>
+          <circle cx="100" cy="108" r="62" fill="rgba(255,255,255,0.06)"/>
+          <path d="M100 30 C100 30 52 88 52 120 a48 48 0 0 0 96 0 C148 88 100 30 100 30 Z" fill="url(#dropFill)"/>
+          <path d="M78 122 a24 24 0 0 0 20 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="6" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <svg class="wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 40 C 240 80 480 0 720 34 S 1200 70 1440 30 L1440 80 L0 80 Z"/>
+    </svg>
+  </header>
+
+  <div class="tabs-wrap"><div class="tabs" role="tablist" aria-label="Sections">
+    <button type="button" class="tab is-active" role="tab" id="tab-status" data-panel="status" aria-controls="panel-status" aria-selected="true" tabindex="0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V10M10 19V5M16 19v-7M22 19H2"/></svg>Neighbourhood status</button>
+    <button type="button" class="tab" role="tab" id="tab-log" data-panel="log" aria-controls="panel-log" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Log an outage</button>
+    <button type="button" class="tab" role="tab" id="tab-official" data-panel="official" aria-controls="panel-official" aria-selected="false" tabindex="-1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>Report officially</button>
+  </div></div>
+
+  <main id="main">
+    <section id="panel-status" class="panel" role="tabpanel" aria-labelledby="status-title">
+      <div class="panel-head">
+        <h2 id="status-title">What this device has logged</h2>
+        <p>Status is calculated only from reports stored in this browser. Another phone will not see them. Sample demo logs are invented for judging and are not live city data.</p>
+      </div>
+      <div id="summary" class="summary" aria-live="polite"></div>
+      <div id="area-breakdown" class="area-breakdown" aria-live="polite" hidden></div>
+      <div class="filter-block">
+        <p class="filter-label">Show</p>
+        <div id="status-filters" class="filters" role="group" aria-label="Filter by status">
+          <button type="button" class="chip is-active" data-status="active">Active</button>
+          <button type="button" class="chip" data-status="resolved">Resolved</button>
+          <button type="button" class="chip" data-status="all">All</button>
+        </div>
+        <div id="filters" class="filters" hidden></div>
+      </div>
+      <ul id="report-list" class="cards"></ul>
+      <div class="row-actions">
+        <div class="action-group">
+          <p class="group-label">Share and back up</p>
+          <div class="group-buttons">
+            <button type="button" id="copy-summary" class="btn ghost">Copy a plain-text summary</button>
+            <button type="button" id="export-logs" class="btn ghost">Export logs (.json)</button>
+            <button type="button" id="import-logs" class="btn ghost">Import logs (.json)</button>
+            <input type="file" id="import-file" accept="application/json,.json" hidden>
+          </div>
+        </div>
+        <div class="action-group">
+          <p class="group-label">Judge demo</p>
+          <div class="group-buttons">
+            <button type="button" id="load-samples" class="btn ghost">Load sample demo logs</button>
+            <button type="button" id="clear-samples" class="btn ghost">Clear sample logs</button>
+          </div>
+        </div>
+        <div class="action-group">
+          <p class="group-label">This device</p>
+          <div class="group-buttons">
+            <button type="button" id="clear-logs" class="btn ghost danger">Clear all logs on this device</button>
+          </div>
+        </div>
+      </div>
+      <p id="copy-note" class="hint" role="status"></p>
+    </section>
+
+    <section id="panel-log" class="panel" role="tabpanel" hidden aria-labelledby="log-title">
+      <div class="panel-head">
+        <h2 id="log-title">Log a household outage</h2>
+        <p>Use this when the tap at home is dry, weak, or discoloured, or you can see a leak in the street. Then still report it on an official line. This form does not submit anything to the municipality.</p>
+      </div>
+      <form id="log-form" class="sheet" novalidate>
+        <label>
+          Area
+          <select name="area" id="area" required>
+            <option value="">Choose an area</option>
+            <option>Hillcrest</option>
+            <option>Crestholme</option>
+            <option>Waterfall</option>
+            <option>Bothas Hill</option>
+            <option>Kloof</option>
+            <option>Gillits</option>
+            <option>Shongweni</option>
+            <option>Molweni</option>
+            <option value="other">Other area nearby</option>
+          </select>
+        </label>
+        <label id="other-wrap" hidden>
+          Name the area
+          <input name="areaOther" id="areaOther" type="text" maxlength="60" autocomplete="off">
+        </label>
+        <label>
+          Street or landmark <span class="optional">optional</span>
+          <input name="place" id="place" type="text" maxlength="80" autocomplete="off" placeholder="Example: near a school or a reservoir name you know">
+        </label>
+        <fieldset class="kinds">
+          <legend>What are you seeing?</legend>
+          <label class="choice"><input type="radio" name="kind" value="No water" required> No water</label>
+          <label class="choice"><input type="radio" name="kind" value="Low pressure"> Low pressure</label>
+          <label class="choice"><input type="radio" name="kind" value="Discoloured water"> Discoloured water</label>
+          <label class="choice"><input type="radio" name="kind" value="Leak in the street"> Leak in the street</label>
+        </fieldset>
+        <label class="half">
+          When did it start?
+          <input name="started" id="started" type="datetime-local" required>
+        </label>
+        <label class="half">
+          Municipal reference number <span class="optional">optional</span>
+          <input name="municipalRef" id="municipalRef" type="text" maxlength="40" autocomplete="off" placeholder="If you called eThekwini and got a reference">
+        </label>
+        <p class="field-hint">Ask for a reference when you report a fault on an official line. Saving it here does not notify the city.</p>
+        <label>
+          Note <span class="optional">optional</span>
+          <textarea name="note" id="note" maxlength="240" rows="3" placeholder="Anything a neighbour would need. Do not put your full address if you are sharing a screen."></textarea>
+        </label>
+        <p id="form-error" class="form-error" role="alert" hidden></p>
+        <button type="submit" class="btn solid">Save on this device</button>
+        <p id="saved-note" class="hint" role="status"></p>
+      </form>
+    </section>
+
+    <section id="panel-official" class="panel" role="tabpanel" hidden aria-labelledby="official-title">
+      <div class="panel-head">
+        <h2 id="official-title">Report it to eThekwini</h2>
+        <p>These are public contact lines for water faults. This site does not submit anything for you.</p>
+      </div>
+      <ul class="official">
+        <li>
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span>
+          <h3>Water Services helpline</h3>
+          <p><a href="tel:0801313013">080 13 13 013</a></p>
+          <p class="fine">Also printed as a 24-hour faults line for fixed-line calls.</p>
+        </li>
+        <li>
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></span>
+          <h3>Toll-free line</h3>
+          <p><a href="tel:0803111111">080 311 1111</a></p>
+          <p class="fine">Quoted on the municipality’s Pipeline 53 notice and later reporting guides.</p>
+        </li>
+        <li>
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20l1.4-4A8 8 0 1 1 8 18.6z"/></svg></span>
+          <h3>WhatsApp</h3>
+          <p><a href="https://wa.me/27731483477">073 148 3477</a></p>
+          <p class="fine">Same number is sometimes written 073 1483 477. Opens WhatsApp only if you choose to. This page does not send a message.</p>
+        </li>
+        <li>
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg></span>
+          <h3>Email</h3>
+          <p><a href="mailto:eservices@durban.gov.za">eservices@durban.gov.za</a></p>
+          <p class="fine">Opens your mail app. Nothing is sent from this page.</p>
+        </li>
+        <li class="wide">
+          <span class="ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+          <h3>Hillcrest walk-in centre</h3>
+          <p>Hillcrest Sizakala Customer Care<br>22 Delamore Road, Hillcrest</p>
+          <p class="fine">Weekdays 07:30–15:30. Saturdays 07:30–11:30, and only the first and last Saturday of the month, according to the municipality’s contact page.</p>
+        </li>
+      </ul>
+      <div class="draft-helper">
+        <button type="button" id="copy-official-draft" class="btn ghost">Copy a draft for the official line</button>
+        <p id="official-draft-note" class="hint" role="status"></p>
+      </div>
+      <aside class="note-card">
+        <h3>Ask for a reference number</h3>
+        <p>Community reporting guides say to ask for a reference number when you log a fault, then share that number with neighbours so people are not all starting from zero. You can store that number on a log in this demo. That does not submit it to the municipality.</p>
+      </aside>
+      <article class="context">
+        <h3>Why Hillcrest</h3>
+        <p>On 26 January 2025, eThekwini Municipality started a shutdown of Pipeline 53 so the pipe could be moved while SANRAL upgraded the N3. The city said restrictions would last until 22 February 2025 and listed Hillcrest among the affected areas, along with nearby places such as Crestholme, Waterfall, Kloof, Gillits, Bothas Hill, Shongweni, and Molweni. Umgeni-Uthukela Water had isolated the pipeline, which reduced flow from the DV Harris Water Treatment Plant.</p>
+        <p>That notice is history, not a statement about today. This page does not know whether your street has water right now.</p>
+      </article>
+    </section>
+  </main>
+
+  <footer class="colophon">
+    <p><span class="foot-mark" aria-hidden="true"></span>Hillcrest Water Watch is a static WarriorHacks 2.0 demo. It has not been submitted. Facts were checked on 1 October 2026. Sources are listed in the README.</p>
+  </footer>
+  <script src="js/app.js"></script>
+</body>
+</html>
