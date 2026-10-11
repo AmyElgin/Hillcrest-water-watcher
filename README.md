@@ -8,7 +8,8 @@ Built solo by Amy Elgin for the WarriorHacks 2.0 hackathon track (theme: a real 
 
 ## Try it
 
-- Live demo: (GitHub Pages link goes here once Pages is switched on)
+- Live demo: [Hillcrest Water Watch](https://amyelgin.github.io/Hillcrest-water-watcher/)
+- Judge demo with sample logs: [`#demo` view](https://amyelgin.github.io/Hillcrest-water-watcher/#demo)
 - Or download the repo and open `index.html` in any browser. There is no build step, no server, and no account.
 - Open `index.html#demo` to load clearly labelled **sample** logs and start on the status view. Sample logs are invented scenarios for judges, not live city data.
 
